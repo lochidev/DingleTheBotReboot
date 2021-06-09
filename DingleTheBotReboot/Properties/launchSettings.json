@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DingleTheBotReboot": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "botToken": "ODUyMTI0OTExOTg3NzIwMjAy.YMCRKg.KvclQmDCdsdD4rEiV3mhmWmcQ_s"
+      }
+    }
+  }
+}
