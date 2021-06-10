@@ -1,36 +1,48 @@
 ﻿using DingleTheBotReboot.Commands;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.SlashCommands;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
 namespace DingleTheBotReboot
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             MainAsync().GetAwaiter().GetResult();
         }
 
-        static async Task MainAsync()
+        private static async Task MainAsync()
         {
-            var discord = new DiscordShardedClient(new DiscordConfiguration
+            DiscordShardedClient discord = new DiscordShardedClient(new DiscordConfiguration
             {
-                Token = Environment.GetEnvironmentVariable("botToken"),
+                Token = Environment.GetEnvironmentVariable("BOT_TOKEN"),
                 TokenType = TokenType.Bot,
-                Intents = DiscordIntents.All
+                Intents = DiscordIntents.All,
+                MinimumLogLevel = LogLevel.Debug
             });
-
-            var commands = await discord.UseCommandsNextAsync(new CommandsNextConfiguration()
+            System.Collections.Generic.IReadOnlyDictionary<int, CommandsNextExtension> commands = await discord.UseCommandsNextAsync(new CommandsNextConfiguration
             {
-                StringPrefixes = new[] { "!" }
+                StringPrefixes = new string[] { "dalpha" }
             });
-            foreach (var command in commands.Values)
+            foreach (CommandsNextExtension command in commands.Values)
             {
-                command.RegisterCommands<BasicCommands>();
+                command.RegisterCommands<AuthCommands>();
+            }
+            System.Collections.Generic.IReadOnlyDictionary<int, SlashCommandsExtension> slashCommands = await discord.UseSlashCommandsAsync(new SlashCommandsConfiguration()
+            {
+                Services = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider()
+            });
+            foreach (SlashCommandsExtension command in slashCommands.Values)
+            {
+                command.RegisterCommands<BasicSlashCommands>(738657617248911472);
             }
             await discord.StartAsync();
+            StartupEvents.Initialize(discord);
             await Task.Delay(-1);
         }
     }
