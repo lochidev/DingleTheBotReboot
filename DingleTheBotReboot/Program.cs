@@ -18,6 +18,7 @@ namespace DingleTheBotReboot
 
         private static async Task MainAsync()
         {
+            var dI = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider();
             DiscordShardedClient discord = new DiscordShardedClient(new DiscordConfiguration
             {
                 Token = Environment.GetEnvironmentVariable("BOT_TOKEN"),
@@ -27,7 +28,8 @@ namespace DingleTheBotReboot
             });
             System.Collections.Generic.IReadOnlyDictionary<int, CommandsNextExtension> commands = await discord.UseCommandsNextAsync(new CommandsNextConfiguration
             {
-                StringPrefixes = new string[] { "dalpha" }
+                StringPrefixes = new string[] { "dalpha" },
+                Services = dI
             });
             foreach (CommandsNextExtension command in commands.Values)
             {
@@ -35,7 +37,7 @@ namespace DingleTheBotReboot
             }
             System.Collections.Generic.IReadOnlyDictionary<int, SlashCommandsExtension> slashCommands = await discord.UseSlashCommandsAsync(new SlashCommandsConfiguration()
             {
-                Services = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider()
+                Services = dI
             });
             foreach (SlashCommandsExtension command in slashCommands.Values)
             {
