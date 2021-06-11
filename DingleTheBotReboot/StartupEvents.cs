@@ -17,6 +17,8 @@ namespace DingleTheBotReboot
                     {
                         await ((DiscordMember)e.User).GrantRoleAsync(e.Guild?.GetRole(787146778357137430), "Successfully verified!");
                     }
+                    await e.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder()
+                        .WithContent("You were verified").AsEphemeral(true));
                 });
 
                 return Task.CompletedTask;

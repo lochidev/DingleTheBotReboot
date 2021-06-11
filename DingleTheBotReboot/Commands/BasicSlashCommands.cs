@@ -43,9 +43,10 @@ namespace DingleTheBotReboot.Commands
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = $"Muted User {user.Username}",
-            }.
-            WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl).
-            WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
+            }
+            .WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl)
+            .WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl)
+            .WithDescription(reason is not null ? $"With reason: {reason}" : "No reason provided");
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
         }
     }
