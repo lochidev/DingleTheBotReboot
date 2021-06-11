@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace DingleTheBotReboot.Commands
 {
-    [SlashCommandGroup("group", "description")]
     public class BasicSlashCommands : SlashCommandModule
     {
         [SlashCommand("ping", "check whether the bot is up :)")]

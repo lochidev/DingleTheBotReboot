@@ -41,7 +41,6 @@ namespace DingleTheBotReboot
             });
             foreach (SlashCommandsExtension command in slashCommands.Values)
             {
-                command.RegisterCommands<EmtySlashCommands>(738657617248911472);
                 command.RegisterCommands<BasicSlashCommands>(738657617248911472);
             }
             await discord.StartAsync();
