@@ -57,23 +57,26 @@ namespace DingleTheBotReboot.Commands
             await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
             if (user is null)
             {
-                DiscordEmbedBuilder emptyUserembed = new DiscordEmbedBuilder
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
                     Title = $"Ban who",
                     ImageUrl = "https://i.pinimg.com/originals/04/cc/38/04cc3802ec5fd9b3655f47e488be3a91.gif"
                 }
                 .WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl)
                 .WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(emptyUserembed.Build()));
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
             }
-            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+            else
             {
-                Title = $"Banned user {user.Username}",
-                ImageUrl = "https://i.pinimg.com/originals/75/cd/f6/75cdf69a0efeaa22fe85fe66254e4330.gif"
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = $"Banned user {user.Username}",
+                    ImageUrl = "https://i.pinimg.com/originals/75/cd/f6/75cdf69a0efeaa22fe85fe66254e4330.gif"
+                }
+                .WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl)
+                .WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
             }
-            .WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl)
-            .WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
         }
     }
 }
