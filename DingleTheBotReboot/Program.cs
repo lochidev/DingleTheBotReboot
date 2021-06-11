@@ -18,7 +18,7 @@ namespace DingleTheBotReboot
 
         private static async Task MainAsync()
         {
-            var dI = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider();
+            ServiceProvider dI = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider();
             DiscordShardedClient discord = new DiscordShardedClient(new DiscordConfiguration
             {
                 Token = Environment.GetEnvironmentVariable("BOT_TOKEN"),
@@ -41,6 +41,7 @@ namespace DingleTheBotReboot
             });
             foreach (SlashCommandsExtension command in slashCommands.Values)
             {
+                command.RegisterCommands<EmtySlashCommands>(738657617248911472);
                 command.RegisterCommands<BasicSlashCommands>(738657617248911472);
             }
             await discord.StartAsync();

@@ -32,5 +32,22 @@ namespace DingleTheBotReboot.Commands
             WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
         }
+        [SlashCommand("mute", "Mute the offender :o")]
+        public async Task Mute(InteractionContext ctx, [Option("user", "The user to get it for")] DiscordUser user, [Option("reason", "Reason for mute")] string reason = null)
+        {
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            if (user is null)
+            {
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("User cannot be null!"));
+            }
+            await ((DiscordMember)user).GrantRoleAsync(ctx.Guild?.GetRole(753129139372032111), reason);
+            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+            {
+                Title = $"Muted User {user.Username}",
+            }.
+            WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl).
+            WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
+        }
     }
 }
