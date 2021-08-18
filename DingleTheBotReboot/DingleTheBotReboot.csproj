@@ -3,13 +3,22 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>915babc1-8f71-48f4-bd2b-672aa4ff40f4</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.1.0-nightly-00879" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0-nightly-00879" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.1.0-nightly-00879" />
-    <PackageReference Include="IDoEverything.DSharpPlus.SlashCommands" Version="1.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Remora.Discord" Version="3.0.51" />
+    <PackageReference Include="Remora.Discord.Caching" Version="11.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
