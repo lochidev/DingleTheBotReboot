@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DingleTheBotReboot.Helpers
 {
@@ -18,10 +18,10 @@ namespace DingleTheBotReboot.Helpers
 
         public BotHostBuilder UseStartup<T>()
         {
-            Type type = typeof(T);
-            System.Reflection.MethodInfo configServices = type.GetMethod("ConfigureServices");
-            System.Reflection.ConstructorInfo constructor = type.GetConstructor(new[] { typeof(IConfiguration) });
-            object instance = constructor is null
+            var type = typeof(T);
+            var configServices = type.GetMethod("ConfigureServices");
+            var constructor = type.GetConstructor(new[] {typeof(IConfiguration)});
+            var instance = constructor is null
                 ? Activator.CreateInstance(type)
                 : Activator.CreateInstance(type, _config);
 
@@ -29,7 +29,7 @@ namespace DingleTheBotReboot.Helpers
                 configServices != null,
                 $"{type} must contain: public void ConfigureServices(IServiceCollection services)"
             );
-            configServices.Invoke(instance, new object[] { _services });
+            configServices.Invoke(instance, new object[] {_services});
             return this;
         }
     }

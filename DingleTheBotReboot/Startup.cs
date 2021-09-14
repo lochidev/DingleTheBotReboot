@@ -1,7 +1,9 @@
 ﻿using DingleTheBotReboot.Commands;
+using DingleTheBotReboot.Responders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Remora.Commands.Extensions;
+using Remora.Discord.Gateway.Extensions;
 
 namespace DingleTheBotReboot
 {
@@ -17,6 +19,8 @@ namespace DingleTheBotReboot
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCommandGroup<StatusCommands>();
+            services.AddCommandGroup<ModerationCommands>();
+            services.AddResponder<ButtonResponder>();
         }
     }
 }

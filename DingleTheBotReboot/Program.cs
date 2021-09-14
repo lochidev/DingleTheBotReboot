@@ -13,10 +13,7 @@ namespace DingleTheBotReboot
         private static IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()
-                .CreateBotHostDefaults(botBuilder =>
-                {
-                    botBuilder.UseStartup<Startup>();
-                });
+                .CreateBotHostDefaults(botBuilder => { botBuilder.UseStartup<Startup>(); });
         }
     }
 }
