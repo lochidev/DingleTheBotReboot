@@ -2,6 +2,7 @@
 using DingleTheBotReboot.Commands;
 using DingleTheBotReboot.Data;
 using DingleTheBotReboot.Responders;
+using DingleTheBotReboot.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,7 @@ namespace DingleTheBotReboot
                     (_config["Cosmos:Database"] ??
                      Environment.GetEnvironmentVariable("Cosmos:Database")) ??
                     throw new InvalidOperationException()));
+            services.AddTransient<IDbContextService, DbContextService>();
         }
     }
 }

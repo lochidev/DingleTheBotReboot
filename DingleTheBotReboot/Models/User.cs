@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DingleTheBotReboot.Models
 {
     public class User
     {
-        public long DiscordId { get; set; }
+        [Key]
+        public ulong DiscordId { get; set; }
         public int Coins { get; set; }
-        public List<IItem> Items { get; set; }
+        public List<Item> Items { get; set; }
     }
 }

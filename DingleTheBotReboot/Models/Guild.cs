@@ -1,8 +1,11 @@
-﻿namespace DingleTheBotReboot.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DingleTheBotReboot.Models
 {
     public class Guild
     {
-        public long GuildId { get; set; }
-        public long VerificationRoleId { get; set; }
+        [Key]
+        public ulong GuildId { get; set; }
+        public ulong VerificationRoleId { get; set; }
     }
 }
