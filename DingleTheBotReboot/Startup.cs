@@ -29,13 +29,12 @@ namespace DingleTheBotReboot
                     (_config["Cosmos:AccountEndpoint"] ??
                      Environment.GetEnvironmentVariable("Cosmos:AccountEndpoint")) ??
                     throw new InvalidOperationException(),
-                    (_config["Cosmos:AccountKey"] ??
-                     Environment.GetEnvironmentVariable("Cosmos:AccountKey") ??
-                     throw new InvalidOperationException()),
+                    _config["Cosmos:AccountKey"] ??
+                    Environment.GetEnvironmentVariable("Cosmos:AccountKey") ??
+                    throw new InvalidOperationException(),
                     (_config["Cosmos:Database"] ??
                      Environment.GetEnvironmentVariable("Cosmos:Database")) ??
                     throw new InvalidOperationException()));
-            
         }
     }
 }

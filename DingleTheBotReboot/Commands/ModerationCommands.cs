@@ -51,6 +51,7 @@ namespace DingleTheBotReboot.Commands
                 ? Result.FromError(reply)
                 : Result.FromSuccess();
         }
+
         [Command("setverificationrole")]
         [Description("Sets the role that dingle uses to give when users verify in your server")]
         public async Task<IResult> SetVerificationRole(IRole role)
