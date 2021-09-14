@@ -1,5 +1,8 @@
-﻿using DingleTheBotReboot.Commands;
+﻿using System;
+using DingleTheBotReboot.Commands;
+using DingleTheBotReboot.Data;
 using DingleTheBotReboot.Responders;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Remora.Commands.Extensions;
@@ -21,6 +24,18 @@ namespace DingleTheBotReboot
             services.AddCommandGroup<StatusCommands>();
             services.AddCommandGroup<ModerationCommands>();
             services.AddResponder<ButtonResponder>();
+            services.AddDbContext<DingleDbContext>(options =>
+                options.UseCosmos(
+                    (_config["Cosmos:AccountEndpoint"] ??
+                     Environment.GetEnvironmentVariable("Cosmos:AccountEndpoint")) ??
+                    throw new InvalidOperationException(),
+                    (_config["Cosmos:AccountKey"] ??
+                     Environment.GetEnvironmentVariable("Cosmos:AccountKey") ??
+                     throw new InvalidOperationException()),
+                    (_config["Cosmos:Database"] ??
+                     Environment.GetEnvironmentVariable("Cosmos:Database")) ??
+                    throw new InvalidOperationException()));
+            
         }
     }
 }

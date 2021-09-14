@@ -32,8 +32,28 @@ namespace DingleTheBotReboot.Commands
         }
 
         [Command("sendverifymessage")]
-        [Description("Sends a button that users can use to get he specified role")]
+        [Description("Sends a button that users can use to get the specified role")]
         public async Task<IResult> SendVerifyMessageAsync()
+        {
+            var reply = await _interactionApi.CreateFollowupMessageAsync(
+                _interactionContext.ApplicationID,
+                _interactionContext.Token,
+                "Hold your horses! Are you not a bot? Prove it!",
+                components: new List<ActionRowComponent>
+                {
+                    new(new List<ButtonComponent>
+                    {
+                        new(ButtonComponentStyle.Primary, "👌 Let me in already! :D", CustomID: "verifyBtn")
+                    })
+                });
+
+            return !reply.IsSuccess
+                ? Result.FromError(reply)
+                : Result.FromSuccess();
+        }
+        [Command("setverificationrole")]
+        [Description("Sets the role that dingle uses to give when users verify in your server")]
+        public async Task<IResult> SetVerificationRole(IRole role)
         {
             var reply = await _interactionApi.CreateFollowupMessageAsync(
                 _interactionContext.ApplicationID,
