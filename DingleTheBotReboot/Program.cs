@@ -15,6 +15,7 @@ namespace DingleTheBotReboot
             CreateDbIfNotExists(host);
             host.Run();
         }
+
         private static void CreateDbIfNotExists(IHost host)
         {
             using (var scope = host.Services.CreateScope())
@@ -33,6 +34,7 @@ namespace DingleTheBotReboot
                 }
             }
         }
+
         private static IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()

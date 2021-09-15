@@ -4,8 +4,8 @@ namespace DingleTheBotReboot.Models
 {
     public class Guild
     {
-        [Key]
-        public ulong GuildId { get; set; }
+        [Key] public ulong GuildId { get; set; }
+
         public ulong VerificationRoleId { get; set; }
     }
 }

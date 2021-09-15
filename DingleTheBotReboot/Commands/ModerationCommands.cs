@@ -10,7 +10,6 @@ using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.API.Objects;
 using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Commands.Feedback.Services;
-using Remora.Discord.Core;
 using Remora.Results;
 
 namespace DingleTheBotReboot.Commands
@@ -18,15 +17,16 @@ namespace DingleTheBotReboot.Commands
     public class ModerationCommands : CommandGroup
     {
         private readonly ICommandContext _context;
+        private readonly IDbContextService _dbContextService;
         private readonly FeedbackService _feedbackService;
         private readonly IDiscordRestInteractionAPI _interactionApi;
         private readonly InteractionContext _interactionContext;
-        private readonly IDbContextService _dbContextService;
+
         public ModerationCommands(
             FeedbackService feedbackService,
             ICommandContext context,
             InteractionContext interactionContext,
-            IDiscordRestInteractionAPI interactionApi, 
+            IDiscordRestInteractionAPI interactionApi,
             IDbContextService dbContextService)
         {
             _feedbackService = feedbackService;
@@ -61,28 +61,20 @@ namespace DingleTheBotReboot.Commands
         [Description("Sets the role that dingle uses to give when users verify in your server")]
         public async Task<IResult> SetVerificationRole(
             [Description("The role to set")] IRole role,
-            [Description("Send the response ephemerally")] bool ephemeral = false)
+            [Description("Send the response ephemerally")]
+            bool ephemeral = false)
         {
-            var respondDeferred = await _interactionApi.CreateInteractionResponseAsync
-            (
-                _interactionContext.ID,
-                _interactionContext.Token,
-                new InteractionResponse(InteractionCallbackType.DeferredUpdateMessage)
-            );
-            if (!respondDeferred.IsSuccess) return respondDeferred;
             var guildId = _context.GuildID;
-            if(!guildId.HasValue)
-            {
-                return  Result.FromSuccess();
-            }
+            if (!guildId.HasValue) return Result.FromSuccess();
 
-            var response = await _dbContextService.UpdateVerificationRoleAsync(_context.GuildID.Value.Value, role.ID.Value);
+            var response =
+                await _dbContextService.UpdateVerificationRoleAsync(_context.GuildID.Value.Value, role.ID.Value);
             var reply = await _interactionApi.CreateFollowupMessageAsync(
                 _interactionContext.ApplicationID,
                 _interactionContext.Token,
-                embeds: new List<Embed>()
+                embeds: new List<Embed>
                 {
-                    new (Description:   response ? "All set!" : "Could not set role!", Colour: Color.Yellow)
+                    new(Description: response ? "All set!" : "Could not set role!", Colour: Color.Yellow)
                 });
 
             return !reply.IsSuccess

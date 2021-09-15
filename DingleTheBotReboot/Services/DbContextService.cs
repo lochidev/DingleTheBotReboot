@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DingleTheBotReboot.Data;
 using DingleTheBotReboot.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DingleTheBotReboot.Services
@@ -21,10 +23,10 @@ namespace DingleTheBotReboot.Services
         {
             try
             {
-                var guild = await _dingleDbContext.Guilds.FindAsync(guildId);
+                var guild = await GetGuildAsync(guildId);
                 if (guild is null)
                 {
-                    await _dingleDbContext.Guilds.AddAsync(new Guild()
+                    await _dingleDbContext.Guilds.AddAsync(new Guild
                     {
                         GuildId = guildId,
                         VerificationRoleId = verificationRoleId
@@ -33,7 +35,9 @@ namespace DingleTheBotReboot.Services
                 else
                 {
                     guild.VerificationRoleId = verificationRoleId;
+                    _dingleDbContext.Update(guild);
                 }
+
                 var rows = await _dingleDbContext.SaveChangesAsync();
                 return rows != 0;
             }
@@ -42,6 +46,11 @@ namespace DingleTheBotReboot.Services
                 _logger.LogCritical("Exception when creating guild: {Message}", e.Message);
                 return false;
             }
+        }
+
+        public async Task<Guild> GetGuildAsync(ulong guildId)
+        {
+            return await _dingleDbContext.Guilds.Where(x => x.GuildId == guildId).FirstOrDefaultAsync();
         }
     }
 }

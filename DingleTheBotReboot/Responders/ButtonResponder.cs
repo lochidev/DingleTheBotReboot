@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using DingleTheBotReboot.Services;
 using Remora.Discord.API.Abstractions.Gateway.Events;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
@@ -15,14 +16,16 @@ namespace DingleTheBotReboot.Responders
 {
     public class ButtonResponder : IResponder<IInteractionCreate>
     {
+        private readonly IDbContextService _dbContextService;
         private readonly IDiscordRestGuildAPI _guildApi;
         private readonly IDiscordRestInteractionAPI _interactionApi;
 
         public ButtonResponder(IDiscordRestGuildAPI guildApi,
-            IDiscordRestInteractionAPI interactionApi)
+            IDiscordRestInteractionAPI interactionApi, IDbContextService dbContextService)
         {
             _guildApi = guildApi;
             _interactionApi = interactionApi;
+            _dbContextService = dbContextService;
         }
 
         public async Task<Result> RespondAsync(IInteractionCreate gatewayEvent,
@@ -53,27 +56,30 @@ namespace DingleTheBotReboot.Responders
                         ? gatewayEvent.Member.Value.User.Value
                         : null
                     : null;
-
-            if (user is null) return Result.FromSuccess();
-
+            if (user is null || !gatewayEvent.GuildID.HasValue) return Result.FromSuccess();
+            var guildId = gatewayEvent.GuildID.Value;
             var userId = user.ID;
-
             var buttonNonce = data.CustomID.Value ?? throw new InvalidOperationException();
             if (buttonNonce == "verifyBtn")
             {
-                await _guildApi.AddGuildMemberRoleAsync(
-                    gatewayEvent.GuildID.Value,
-                    userId,
-                    new Snowflake(787146778357137430), ct: ct);
+                var storedGuild = await _dbContextService.GetGuildAsync(guildId.Value);
+                var found = storedGuild is not null;
+                if (found)
+                    await _guildApi.AddGuildMemberRoleAsync(
+                        guildId,
+                        userId,
+                        new Snowflake(storedGuild.VerificationRoleId), ct: ct);
                 var embed = new List<IEmbed>
                 {
-                    new Embed(Description: "You were verified!", Colour: Color.Yellow)
+                    new Embed(
+                        Description: found ? "You were verified!" : "No verification role has been set for this server",
+                        Colour: Color.Yellow)
                 };
                 var reply = await _interactionApi.CreateFollowupMessageAsync(
                     gatewayEvent.ApplicationID,
                     gatewayEvent.Token,
                     embeds: embed,
-                    flags: MessageFlags.Ephemeral,
+                    flags: found ? MessageFlags.Ephemeral : default(Optional<MessageFlags>),
                     ct: ct);
                 return !reply.IsSuccess
                     ? Result.FromError(reply)

@@ -3,14 +3,14 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
-        <UserSecretsId>915babc1-8f71-48f4-bd2b-672aa4ff40f4</UserSecretsId>
+        <UserSecretsId>e8fc53d3-ea42-4dcd-bf7a-f5d81a2d3973</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="6.0.0-preview.7.21378.4" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0-preview.7.21377.19" />
-        <PackageReference Include="Remora.Discord" Version="3.0.51" />
-        <PackageReference Include="Remora.Discord.Caching" Version="11.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="6.0.0-rc.1.21452.10"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0-rc.1.21451.13"/>
+        <PackageReference Include="Remora.Discord" Version="3.0.51"/>
+        <PackageReference Include="Remora.Discord.Caching" Version="11.0.1"/>
     </ItemGroup>
 
     <ItemGroup>

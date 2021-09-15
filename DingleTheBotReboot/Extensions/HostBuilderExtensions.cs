@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using DingleTheBotReboot.Helpers;
 using DingleTheBotReboot.Services;
 using Microsoft.Extensions.Configuration;
@@ -35,11 +34,7 @@ namespace DingleTheBotReboot.Extensions
                 appConfig.Sources.Clear();
                 appConfig.AddConfiguration(config);
             });
-            string botToken = null;
-            if (Debugger.IsAttached)
-                botToken = config["Discord:BotToken"];
-            else
-                botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
+            var botToken = config["Discord:BotToken"] ?? Environment.GetEnvironmentVariable("BOT_TOKEN");
             if (botToken is null) throw new Exception("Bot token not found");
             builder.ConfigureServices(serviceCollection =>
             {
