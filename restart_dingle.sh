@@ -1,6 +1,6 @@
 #! /bin/bash
 
-BOT_PROCESS=$(bash getbotprocess.sh DingleTheBotReboot)
+BOT_PROCESS=$(bash get_process.sh [.]/DingleTheBotReboot)
 kill -9 $BOT_PROCESS
 printf "Killed bot with pId $BOT_PROCESS\nEnter bot token\n"
 read BOT_TOKEN
@@ -13,7 +13,7 @@ read CAK
 export Cosmos_AccountKey=$CAK
 printf "Enter Cosmos_Database\n"
 read CDB
-export Cosmos_AccountEndpoint=$CDB
+export Cosmos_Database=$CDB
 cd mystuff/dinglerebooted/publish
 chmod +x DingleTheBotReboot
 nohup ./DingleTheBotReboot >/dev/null 2>&1 &

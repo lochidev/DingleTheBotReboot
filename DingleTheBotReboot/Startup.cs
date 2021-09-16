@@ -27,14 +27,11 @@ namespace DingleTheBotReboot
             services.AddResponder<ButtonResponder>();
             services.AddDbContext<DingleDbContext>(options =>
                 options.UseCosmos(
-                    (_config["Cosmos_AccountEndpoint"] ??
-                     Environment.GetEnvironmentVariable("Cosmos_AccountEndpoint")) ??
+                    _config["Cosmos_AccountEndpoint"] ??
                     throw new InvalidOperationException(),
                     _config["Cosmos_AccountKey"] ??
-                    Environment.GetEnvironmentVariable("Cosmos_AccountKey") ??
                     throw new InvalidOperationException(),
-                    (_config["Cosmos_Database"] ??
-                     Environment.GetEnvironmentVariable("Cosmos_Database")) ??
+                    _config["Cosmos_Database"] ??
                     throw new InvalidOperationException()));
             services.AddTransient<IDbContextService, DbContextService>();
         }
