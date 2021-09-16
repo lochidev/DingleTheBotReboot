@@ -68,7 +68,7 @@ namespace DingleTheBotReboot.Commands
             if (!guildId.HasValue) return Result.FromSuccess();
 
             var response =
-                await _dbContextService.UpdateVerificationRoleAsync(_context.GuildID.Value.Value, role.ID.Value);
+                await _dbContextService.UpdateVerificationRoleAsync(guildId.Value.Value, role.ID.Value);
             var reply = await _interactionApi.CreateFollowupMessageAsync(
                 _interactionContext.ApplicationID,
                 _interactionContext.Token,
