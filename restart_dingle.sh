@@ -5,15 +5,15 @@ kill -9 $BOT_PROCESS
 printf "Killed bot with pId $BOT_PROCESS\nEnter bot token\n"
 read BOT_TOKEN
 export BOT_TOKEN=$BOT_TOKEN
-printf "Enter Cosmos:AccountEndpoint\n"
+printf "Enter Cosmos_AccountEndpoint\n"
 read CAE
-export Cosmos:AccountEndpoint=$CAE
-printf "Enter Cosmos:AccountKey\n"
+export Cosmos_AccountEndpoint=$CAE
+printf "Enter Cosmos_AccountKey\n"
 read CAK
-export Cosmos:AccountKey=$CAK
-printf "Enter Cosmos:Database\n"
+export Cosmos_AccountKey=$CAK
+printf "Enter Cosmos_Database\n"
 read CDB
-export Cosmos:AccountEndpoint=$CDB
+export Cosmos_AccountEndpoint=$CDB
 cd mystuff/dinglerebooted/publish
 chmod +x DingleTheBotReboot
 nohup ./DingleTheBotReboot >/dev/null 2>&1 &
