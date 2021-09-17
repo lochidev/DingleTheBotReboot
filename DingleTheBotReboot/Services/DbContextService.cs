@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DingleTheBotReboot.Data;
 using DingleTheBotReboot.Models;
@@ -12,12 +13,11 @@ namespace DingleTheBotReboot.Services
     {
         private readonly DingleDbContext _dingleDbContext;
         private readonly ILogger<DbContextService> _logger;
-        private readonly Random _rnd;
+
         public DbContextService(DingleDbContext dingleDbContext, ILogger<DbContextService> logger, Random rnd)
         {
             _dingleDbContext = dingleDbContext;
             _logger = logger;
-            _rnd = rnd;
         }
 
         public async Task<bool> UpdateVerificationRoleAsync(ulong guildId, ulong verificationRoleId)
@@ -59,11 +59,12 @@ namespace DingleTheBotReboot.Services
             return await _dingleDbContext.Users.Where(x => x.DiscordId == discordId).FirstOrDefaultAsync();
         }
 
-        public async Task<int> AddCoinsAsync(ulong discordId)
+        public async Task<int> AddCoinsAsync(ulong discordId,
+            int coins = 0, int fromInclusive = 100, int toExclusive = 201)
         {
             try
             {
-                var coins = _rnd.Next(100, 200); 
+                var amount = coins == 0 ? RandomNumberGenerator.GetInt32(fromInclusive, toExclusive) : coins; 
                 var user = await GetUserAsync(discordId);
                 if (user is null)
                 {
@@ -75,12 +76,12 @@ namespace DingleTheBotReboot.Services
                 }
                 else
                 {
-                    user.Coins += coins;
+                    user.Coins += amount;
                     _dingleDbContext.Update(user);
                 }
 
                 var rows = await _dingleDbContext.SaveChangesAsync();
-                return rows != 0 ? coins : 0;
+                return rows != 0 ? amount : 0;
             }
             catch (Exception e)
             {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DingleTheBotReboot.Services;
 using Remora.Commands.Attributes;
@@ -64,6 +65,14 @@ namespace DingleTheBotReboot.Commands
             [Description("Send the response ephemerally")]
             bool ephemeral = false)
         {
+            // This is something we're supposed to handle
+            var respondDeferred = await _interactionApi.CreateInteractionResponseAsync
+            (
+                _interactionContext.ID,
+                _interactionContext.Token,
+                new InteractionResponse(InteractionCallbackType.DeferredUpdateMessage)
+            );
+            if (!respondDeferred.IsSuccess) return respondDeferred;
             var guildId = _context.GuildID;
             if (!guildId.HasValue) return Result.FromSuccess();
 

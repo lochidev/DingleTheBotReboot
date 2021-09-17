@@ -24,7 +24,7 @@ namespace DingleTheBotReboot
         {
             services.AddCommandGroup<StatusCommands>();
             services.AddCommandGroup<ModerationCommands>();
-            services.AddCommandGroup<FunCommands>();
+            services.AddCommandGroup<CoinCommands>();
             services.AddResponder<ButtonResponder>();
             services.AddDbContext<DingleDbContext>(options =>
                 options.UseCosmos(
@@ -35,7 +35,6 @@ namespace DingleTheBotReboot
                     _config["Cosmos_Database"] ??
                     throw new InvalidOperationException()));
             services.AddTransient<IDbContextService, DbContextService>();
-            services.AddSingleton(new Random());
         }
     }
 }

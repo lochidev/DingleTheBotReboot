@@ -23,8 +23,9 @@ namespace DingleTheBotReboot.Extensions
             {
                 configBuilder.AddUserSecrets<Program>();
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
+                Console.WriteLine(e.Message);
             }
 #endif
             configBuilder.AddEnvironmentVariables();
@@ -34,7 +35,7 @@ namespace DingleTheBotReboot.Extensions
                 appConfig.Sources.Clear();
                 appConfig.AddConfiguration(config);
             });
-            var botToken = config["Discord:BotToken"] ?? Environment.GetEnvironmentVariable("BOT_TOKEN");
+            var botToken = config["BOT_TOKEN"];
             if (botToken is null) throw new Exception("Bot token not found");
             builder.ConfigureServices(serviceCollection =>
             {
