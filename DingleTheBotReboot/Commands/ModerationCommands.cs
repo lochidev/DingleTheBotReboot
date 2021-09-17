@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DingleTheBotReboot.Services;
 using Remora.Commands.Attributes;
@@ -9,12 +8,16 @@ using Remora.Commands.Groups;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.API.Objects;
+using Remora.Discord.Commands.Conditions;
 using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Commands.Feedback.Services;
 using Remora.Results;
 
 namespace DingleTheBotReboot.Commands
 {
+    [RequireContext(ChannelContext.Guild)]
+    [Group("moderation")]
+    [Description("Commands for moderation")]
     public class ModerationCommands : CommandGroup
     {
         private readonly ICommandContext _context;
@@ -65,26 +68,14 @@ namespace DingleTheBotReboot.Commands
             [Description("Send the response ephemerally")]
             bool ephemeral = false)
         {
-            // This is something we're supposed to handle
-            var respondDeferred = await _interactionApi.CreateInteractionResponseAsync
-            (
-                _interactionContext.ID,
-                _interactionContext.Token,
-                new InteractionResponse(InteractionCallbackType.DeferredUpdateMessage)
-            );
-            if (!respondDeferred.IsSuccess) return respondDeferred;
             var guildId = _context.GuildID;
             if (!guildId.HasValue) return Result.FromSuccess();
 
             var response =
                 await _dbContextService.UpdateVerificationRoleAsync(guildId.Value.Value, role.ID.Value);
-            var reply = await _interactionApi.CreateFollowupMessageAsync(
-                _interactionContext.ApplicationID,
-                _interactionContext.Token,
-                embeds: new List<Embed>
-                {
-                    new(Description: response ? "All set!" : "Could not set role!", Colour: Color.Yellow)
-                });
+            var reply = await _feedbackService.SendContextualEmbedAsync(
+                new Embed(Description: response ? "All set!" : "Could not set role!",
+                    Colour: Color.Yellow));
 
             return !reply.IsSuccess
                 ? Result.FromError(reply)

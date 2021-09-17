@@ -33,11 +33,10 @@ namespace DingleTheBotReboot.Responders
         {
             if (gatewayEvent.Type != InteractionType.MessageComponent) return Result.FromSuccess();
 
-            var data = gatewayEvent.Data.Value ?? throw new InvalidOperationException();
+            var data = gatewayEvent.Data.Value;
             var type = data.ComponentType.Value;
 
             if (type != ComponentType.Button) return Result.FromSuccess();
-
             // This is something we're supposed to handle
             var respondDeferred = await _interactionApi.CreateInteractionResponseAsync
             (

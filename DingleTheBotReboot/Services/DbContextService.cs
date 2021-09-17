@@ -64,7 +64,7 @@ namespace DingleTheBotReboot.Services
         {
             try
             {
-                var amount = coins == 0 ? RandomNumberGenerator.GetInt32(fromInclusive, toExclusive) : coins; 
+                var amount = coins == 0 ? RandomNumberGenerator.GetInt32(fromInclusive, toExclusive) : coins;
                 var user = await GetUserAsync(discordId);
                 if (user is null)
                 {
