@@ -1,5 +1,6 @@
 #! /bin/bash
-
+mkdir -p mystuff/dinglerebooted/publish
+cd mystuff/dinglerebooted/publish
 BOT_PROCESS=$(bash get_process.sh [.]/DingleTheBotReboot)
 kill -9 $BOT_PROCESS
 printf "Killed bot with pId $BOT_PROCESS\nEnter bot token\n"
@@ -14,7 +15,6 @@ export Cosmos_AccountKey=$CAK
 printf "Enter Cosmos_Database\n"
 read CDB
 export Cosmos_Database=$CDB
-cd mystuff/dinglerebooted/publish
 chmod +x DingleTheBotReboot
 nohup ./DingleTheBotReboot >/dev/null 2>&1 &
 ps aux | grep Dingle
