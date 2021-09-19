@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DingleTheBotReboot.Data;
 using DingleTheBotReboot.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace DingleTheBotReboot.Services
@@ -13,11 +14,14 @@ namespace DingleTheBotReboot.Services
     {
         private readonly DingleDbContext _dingleDbContext;
         private readonly ILogger<DbContextService> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public DbContextService(DingleDbContext dingleDbContext, ILogger<DbContextService> logger, Random rnd)
+        public DbContextService(DingleDbContext dingleDbContext, ILogger<DbContextService> logger, Random rnd,
+            IMemoryCache memoryCache)
         {
             _dingleDbContext = dingleDbContext;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
 
         public async Task<bool> UpdateVerificationRoleAsync(ulong guildId, ulong verificationRoleId)
@@ -44,19 +48,45 @@ namespace DingleTheBotReboot.Services
             }
             catch (Exception e)
             {
-                _logger.LogCritical("Exception when creating guild: {Message}", e.Message);
+                _logger.LogCritical("Exception when setting verification role: {Message}", e.Message);
                 return false;
             }
         }
 
         public async Task<Guild> GetGuildAsync(ulong guildId)
         {
-            return await _dingleDbContext.Guilds.Where(x => x.GuildId == guildId).FirstOrDefaultAsync();
+            try
+            {
+                if (!_memoryCache.TryGetValue(guildId, out Guild guild))
+                {
+                    guild = await _dingleDbContext.Guilds.Where(x => x.GuildId == guildId).FirstOrDefaultAsync();
+                    await CacheModel(guildId, guild, TimeSpan.FromMinutes(10));
+                }
+                return guild;
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical("Exception when getting guild: {Message}", e.Message);
+                return null;
+            }
         }
 
         public async Task<User> GetUserAsync(ulong discordId)
         {
-            return await _dingleDbContext.Users.Where(x => x.DiscordId == discordId).FirstOrDefaultAsync();
+            try
+            {
+                if (!_memoryCache.TryGetValue(discordId, out User user))
+                {
+                    user = await _dingleDbContext.Users.Where(x => x.DiscordId == discordId).FirstOrDefaultAsync();
+                    await CacheModel(discordId, user, TimeSpan.FromMinutes(10));
+                }
+                return user;
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical("Exception when getting user: {Message}", e.Message);
+                return null;
+            }
         }
 
         public async Task<int> AddCoinsAsync(ulong discordId,
@@ -77,6 +107,7 @@ namespace DingleTheBotReboot.Services
                 else
                 {
                     user.Coins += amount;
+                    await CacheModel(discordId, user, TimeSpan.FromMinutes(10));
                     _dingleDbContext.Update(user);
                 }
 
@@ -88,6 +119,10 @@ namespace DingleTheBotReboot.Services
                 _logger.LogCritical("Exception when giving coins to user: {Message}", e.Message);
                 return 0;
             }
+        }
+        private Task<T> CacheModel<T>(ulong key, T item, TimeSpan timeSpan)
+        {
+            return item is not null ? Task.FromResult(_memoryCache.Set(key, item, timeSpan)) : null;
         }
     }
 }
