@@ -18,7 +18,7 @@ using Remora.Results;
 namespace DingleTheBotReboot.Commands
 {
     [RequireContext(ChannelContext.Guild)]
-    [Group("moneyx")]
+    [Group("money")]
     [Description("Commands for all things money god")]
     public class CoinCommands : CommandGroup
     {

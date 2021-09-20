@@ -1,7 +1,7 @@
 #! /bin/bash
 mkdir -p mystuff/dinglerebooted/publish
 cd mystuff/dinglerebooted/publish
-BOT_PROCESS=$(bash get_process.sh [.]/DingleTheBotReboot)
+BOT_PROCESS=$(bash $HOME/get_process.sh [.]/DingleTheBotReboot)
 kill -9 $BOT_PROCESS
 printf "Killed bot with pId $BOT_PROCESS\nEnter bot token\n"
 read BOT_TOKEN
