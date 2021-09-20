@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net.Http;
+using BanService;
 using DingleTheBotReboot.Commands;
 using DingleTheBotReboot.Data;
 using DingleTheBotReboot.Responders;
@@ -35,6 +37,16 @@ namespace DingleTheBotReboot
                     _config["Cosmos_Database"] ??
                     throw new InvalidOperationException()));
             services.AddTransient<IDbContextService, DbContextService>();
+            services.AddGrpcClient<Banner.BannerClient>(o => { o.Address = new Uri("https://localhost:5009"); })
+                .ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    var handler = new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback =
+                            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+                    return handler;
+                });
         }
     }
 }

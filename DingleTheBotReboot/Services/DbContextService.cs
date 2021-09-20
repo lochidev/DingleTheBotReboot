@@ -62,6 +62,7 @@ namespace DingleTheBotReboot.Services
                     guild = await _dingleDbContext.Guilds.Where(x => x.GuildId == guildId).FirstOrDefaultAsync();
                     await CacheModel(guildId, guild, TimeSpan.FromMinutes(10));
                 }
+
                 return guild;
             }
             catch (Exception e)
@@ -80,6 +81,7 @@ namespace DingleTheBotReboot.Services
                     user = await _dingleDbContext.Users.Where(x => x.DiscordId == discordId).FirstOrDefaultAsync();
                     await CacheModel(discordId, user, TimeSpan.FromMinutes(10));
                 }
+
                 return user;
             }
             catch (Exception e)
@@ -120,6 +122,7 @@ namespace DingleTheBotReboot.Services
                 return 0;
             }
         }
+
         private Task<T> CacheModel<T>(ulong key, T item, TimeSpan timeSpan)
         {
             return item is not null ? Task.FromResult(_memoryCache.Set(key, item, timeSpan)) : null;
