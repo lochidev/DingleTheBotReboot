@@ -37,6 +37,7 @@ namespace DingleTheBotReboot
                     _config["Cosmos_Database"] ??
                     throw new InvalidOperationException()));
             services.AddTransient<IDbContextService, DbContextService>();
+            services.AddSingleton<ICommonMethodsService, CommonMethodsService>();
             services.AddGrpcClient<Banner.BannerClient>(o => { o.Address = new Uri("https://localhost:5009"); })
                 .ConfigurePrimaryHttpMessageHandler(() =>
                 {
