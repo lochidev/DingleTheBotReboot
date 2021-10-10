@@ -5,40 +5,47 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace DingleTheBotReboot
+namespace DingleTheBotReboot;
+
+public class Program
 {
-    public class Program
+    public static void Main()
     {
-        public static void Main()
+        try
         {
             var host = CreateHostBuilder().Build();
             CreateDbIfNotExists(host);
             host.Run();
         }
-
-        private static void CreateDbIfNotExists(IHost host)
+        catch (Exception e)
         {
-            using (var scope = host.Services.CreateScope())
+            Console.WriteLine(e);
+            Console.ReadKey();
+        }
+    }
+
+    private static void CreateDbIfNotExists(IHost host)
+    {
+        using (var scope = host.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            try
             {
-                var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<DingleDbContext>();
-                    context.Database.EnsureCreated();
-                    // DbInitializer.Initialize(context);
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred creating the DB");
-                }
+                var context = services.GetRequiredService<DingleDbContext>();
+                context.Database.EnsureCreated();
+                // DbInitializer.Initialize(context);
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred creating the DB");
             }
         }
+    }
 
-        private static IHostBuilder CreateHostBuilder()
-        {
-            return Host.CreateDefaultBuilder()
-                .CreateBotHostDefaults(botBuilder => { botBuilder.UseStartup<Startup>(); });
-        }
+    private static IHostBuilder CreateHostBuilder()
+    {
+        return Host.CreateDefaultBuilder()
+            .CreateBotHostDefaults(botBuilder => { botBuilder.UseStartup<Startup>(); });
     }
 }
