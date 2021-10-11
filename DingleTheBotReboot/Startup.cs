@@ -33,12 +33,8 @@ public class Startup
         services.AddCommandGroup<AnimeCommands>();
         services.AddResponder<ButtonResponder>();
         services.AddDbContext<DingleDbContext>(options =>
-            options.UseCosmos(
-                _config["Cosmos_AccountEndpoint"] ??
-                throw new InvalidOperationException(),
-                _config["Cosmos_AccountKey"] ??
-                throw new InvalidOperationException(),
-                _config["Cosmos_Database"] ??
+            options.UseNpgsql(
+                _config["Postgres"] ??
                 throw new InvalidOperationException()));
         services.AddTransient<IDbContextService, DbContextService>();
         services.AddSingleton<ICommonMethodsService, CommonMethodsService>();

@@ -6,6 +6,9 @@ kill -9 $BOT_PROCESS
 printf "Killed bot with pId $BOT_PROCESS\nEnter bot token\n"
 read BOT_TOKEN
 export BOT_TOKEN=$BOT_TOKEN
+printf "Enter Redis Connection String\n"
+read RCS
+export Redis=$RCS
 printf "Enter Cosmos_AccountEndpoint\n"
 read CAE
 export Cosmos_AccountEndpoint=$CAE
