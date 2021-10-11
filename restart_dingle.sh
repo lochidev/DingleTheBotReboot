@@ -9,15 +9,9 @@ export BOT_TOKEN=$BOT_TOKEN
 printf "Enter Redis Connection String\n"
 read RCS
 export Redis=$RCS
-printf "Enter Cosmos_AccountEndpoint\n"
-read CAE
-export Cosmos_AccountEndpoint=$CAE
-printf "Enter Cosmos_AccountKey\n"
-read CAK
-export Cosmos_AccountKey=$CAK
-printf "Enter Cosmos_Database\n"
-read CDB
-export Cosmos_Database=$CDB
+printf "Enter Postgres Connection String\n"
+read PSQL
+export Postgres=$PSQL
 chmod +x DingleTheBotReboot
 nohup ./DingleTheBotReboot >/dev/null 2>&1 &
 ps aux | grep Dingle
