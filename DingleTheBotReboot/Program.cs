@@ -12,8 +12,8 @@ public class Program
     public static void Main()
     {
         var host = CreateHostBuilder().Build();
-            CreateDbIfNotExists(host);
-            host.Run();
+        CreateDbIfNotExists(host);
+        host.Run();
     }
 
     private static void CreateDbIfNotExists(IHost host)

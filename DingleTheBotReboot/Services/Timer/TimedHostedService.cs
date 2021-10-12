@@ -23,6 +23,8 @@ public class TimedHostedService : IHostedService
     private readonly ConcurrentDictionary<int, Anime> _loadedAnime;
     private readonly ILogger<TimedHostedService> _logger;
     private int _executionCount;
+    private Task _timerTask;
+    private CancellationTokenSource _cts = new();
 
     public TimedHostedService(IServiceProvider services, ILogger<TimedHostedService> logger)
     {
@@ -33,82 +35,89 @@ public class TimedHostedService : IHostedService
 
     private IServiceProvider Services { get; }
 
-    public async Task StartAsync(CancellationToken stoppingToken)
+    public Task StartAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Timed Hosted Service running.");
-
-        var operationTask = DoWorkAsync(stoppingToken);
-
-        try
-        {
-            await operationTask.WaitAsync(TimeSpan.FromSeconds(1), stoppingToken);
-        }
-        catch (Exception)
-        {
-            // ignored
-        }
-    }
-
-    public Task StopAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation("Timed Hosted Service is stopping.");
-
+        _timerTask = DoWorkAsync();
         return Task.CompletedTask;
     }
 
-    private async Task DoWorkAsync(CancellationToken stoppingToken)
+    public async Task StopAsync(CancellationToken stoppingToken)
     {
-        var timer = new PeriodicTimer(TimeSpan.FromMinutes(2));
-        while (await timer.WaitForNextTickAsync(stoppingToken))
-            try
-            {
-                using var scope = Services.CreateScope();
-                var count = Interlocked.Increment(ref _executionCount);
-                if (_loadedAnime.IsEmpty || count > 20)
-                {
-                    var animeDbServiceClient = scope.ServiceProvider
-                        .GetRequiredService<AnimeDbService.AnimeDbServiceClient>();
-                    using var streamingCall = animeDbServiceClient.GetUpComingAnime(new Empty());
-                    await foreach (var anime in streamingCall.ResponseStream.ReadAllAsync(
-                        stoppingToken)) _loadedAnime.TryAdd(anime.AnimeId, anime);
-                    Interlocked.Exchange(ref _executionCount, 0);
-                }
+        _logger.LogInformation("Timed Hosted Service is stopping.");
 
-                var (key, nearestAnime) = _loadedAnime.MinBy(x => x.Value.DateTime);
-                if (nearestAnime == null) continue;
-                var airingDateUtc = nearestAnime.DateTime.ToDateTime().ToUniversalTime();
-                var dateTimeNowUtc = DateTime.UtcNow.AddDays(1);
-                if (airingDateUtc > dateTimeNowUtc)
-                {
-                    await Task.Delay(airingDateUtc - dateTimeNowUtc, stoppingToken);
-                    var channelApi = scope.ServiceProvider
-                        .GetRequiredService<IDiscordRestChannelAPI>();
-                    var dbContextService = scope.ServiceProvider.GetRequiredService<IDbContextService>();
-                    var guilds = await dbContextService.GetAllGuildsAsync();
-                    if (guilds is not null)
-                        foreach (var guild in guilds)
-                        {
-                            var embed = new Embed(
-                                $"Airs on {nearestAnime.DateTime.ToDateTime().ToString("D", DateTimeFormatInfo.InvariantInfo)}",
-                                EmbedType.Image,
-                                $"Anime name: {nearestAnime.Name}",
-                                Image: new EmbedImage(nearestAnime.ImgUrl));
-                            await channelApi.CreateMessageAsync(new Snowflake(guild.AnimeRemindersChannelId),
-                                embeds: new List<IEmbed> {embed}, ct: stoppingToken);
-                        }
-                }
+        _cts.Cancel();
 
-                _logger.LogInformation(
-                    $"Timed Hosted Service is working. Successfully sent anime: {nearestAnime.AnimeId}");
-                _loadedAnime.Remove(key, out _);
-            }
-            catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
+        await _timerTask;
+
+        _cts.Dispose();
+
+        _logger.LogInformation("Timed Hosted Service is stopped.");
+    }
+
+    private async Task DoWorkAsync()
+    {
+        try
+        {
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+            while (await timer.WaitForNextTickAsync(_cts.Token))
             {
-                _logger.LogError("AnimeDb stream canceled");
+                try
+                {
+                    var count = Interlocked.Increment(ref _executionCount);
+                    if (_loadedAnime.IsEmpty || count > 20)
+                    {
+                        using var scope = Services.CreateScope();
+                        var animeDbServiceClient = scope.ServiceProvider
+                            .GetRequiredService<AnimeDbService.AnimeDbServiceClient>();
+                        using var streamingCall = animeDbServiceClient.GetUpComingAnime(new Empty());
+                        await foreach (var anime in streamingCall.ResponseStream.ReadAllAsync(
+                            _cts.Token)) _loadedAnime.TryAdd(anime.AnimeId, anime);
+                        Interlocked.Exchange(ref _executionCount, 0);
+                    }
+
+                    var (key, nearestAnime) = _loadedAnime.MinBy(x => x.Value.DateTime);
+                    if (nearestAnime == null) continue;
+                    var airingDateUtc = nearestAnime.DateTime.ToDateTime().ToUniversalTime();
+                    var dateTimeNowUtc = DateTime.UtcNow.AddDays(1);
+                    if (airingDateUtc > dateTimeNowUtc)
+                    {
+                        using var scope = Services.CreateScope();
+                        await Task.Delay(airingDateUtc - dateTimeNowUtc, _cts.Token);
+                        var channelApi = scope.ServiceProvider
+                            .GetRequiredService<IDiscordRestChannelAPI>();
+                        var dbContextService = scope.ServiceProvider.GetRequiredService<IDbContextService>();
+                        var guilds = await dbContextService.GetAllGuildsAsync();
+                        if (guilds is not null)
+                            foreach (var guild in guilds)
+                            {
+                                var embed = new Embed(
+                                    $"Airs on {nearestAnime.DateTime.ToDateTime().ToString("D", DateTimeFormatInfo.InvariantInfo)}",
+                                    EmbedType.Image,
+                                    $"Anime name: {nearestAnime.Name}",
+                                    Image: new EmbedImage(nearestAnime.ImgUrl));
+                                await channelApi.CreateMessageAsync(new Snowflake(guild.AnimeRemindersChannelId),
+                                    embeds: new List<IEmbed> {embed}, ct: _cts.Token);
+                            }
+                    }
+
+                    _logger.LogInformation(
+                        $"Timed Hosted Service is working. Successfully sent anime: {nearestAnime.AnimeId}");
+                    _loadedAnime.Remove(key, out _);
+                }
+                catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
+                {
+                    _logger.LogError("AnimeDb stream canceled");
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Error in Timed Hosted Service (Worker): {e.Message} ");
+                }
             }
-            catch (Exception e)
-            {
-                _logger.LogError($"Error in Timed Hosted Service: {e.Message} ");
-            }
+        }
+        catch (OperationCanceledException)
+        {
+            //ignore
+        }
     }
 }
