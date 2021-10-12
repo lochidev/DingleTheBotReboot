@@ -13,6 +13,7 @@ This bot uses some microservices
 
 
 [Ban Service](https://github.com/lochidev/BanService)
+[Anidb Service](https://github.com/lochidev/AniDbService)
 
 
 ### Credits
