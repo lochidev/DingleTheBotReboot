@@ -91,14 +91,12 @@ public class AnimeCommands : CommandGroup
                 $"Anime name: {anime.Name}",
                 Image: new EmbedImage(anime.ImgUrl));
             embeds.Add(embed);
-            if (embeds.Count == 10)
-            {
-                await _interactionApi.CreateFollowupMessageAsync(
-                    _interactionContext.ApplicationID,
-                    _interactionContext.Token,
-                    embeds: embeds);
-                embeds.Clear();
-            }
+            if (embeds.Count != 10) continue;
+            await _interactionApi.CreateFollowupMessageAsync(
+                _interactionContext.ApplicationID,
+                _interactionContext.Token,
+                embeds: embeds);
+            embeds.Clear();
         }
 
         if (embeds.Count > 0)
