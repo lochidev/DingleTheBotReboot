@@ -65,7 +65,7 @@ public class TimedHostedService : IHostedService
                 try
                 {
                     var count = Interlocked.Increment(ref _executionCount);
-                    if (_loadedAnime.IsEmpty || count > 20)
+                    if (_loadedAnime.IsEmpty || count > 70)
                     {
                         using var scope = Services.CreateScope();
                         var animeDbServiceClient = scope.ServiceProvider
