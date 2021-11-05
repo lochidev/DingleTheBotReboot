@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -20,17 +19,19 @@ namespace DingleTheBotReboot.Services.Timer;
 
 public class TimedHostedService : IHostedService
 {
-    private readonly ConcurrentDictionary<int, Anime> _loadedAnime;
+    private readonly CancellationTokenSource _cts = new();
+    private readonly Dictionary<int, Anime> _loadedAnime;
+
     private readonly ILogger<TimedHostedService> _logger;
-    private int _executionCount;
+
+    // private int _executionCount;
     private Task _timerTask;
-    private CancellationTokenSource _cts = new();
 
     public TimedHostedService(IServiceProvider services, ILogger<TimedHostedService> logger)
     {
         Services = services;
         _logger = logger;
-        _loadedAnime = new ConcurrentDictionary<int, Anime>();
+        _loadedAnime = new Dictionary<int, Anime>();
     }
 
     private IServiceProvider Services { get; }
@@ -59,21 +60,20 @@ public class TimedHostedService : IHostedService
     {
         try
         {
-            var timer = new PeriodicTimer(TimeSpan.FromMinutes(2));
+            var timer = new PeriodicTimer(TimeSpan.FromMinutes(5));
             while (await timer.WaitForNextTickAsync(_cts.Token))
-            {
                 try
                 {
-                    var count = Interlocked.Increment(ref _executionCount);
-                    if (_loadedAnime.IsEmpty || count > 70)
+                    // _executionCount += 1;
+                    if (_loadedAnime.Count == 0)
                     {
                         using var scope = Services.CreateScope();
                         var animeDbServiceClient = scope.ServiceProvider
                             .GetRequiredService<AnimeDbService.AnimeDbServiceClient>();
                         using var streamingCall = animeDbServiceClient.GetUpComingAnime(new Empty());
                         await foreach (var anime in streamingCall.ResponseStream.ReadAllAsync(
-                            _cts.Token)) _loadedAnime.TryAdd(anime.AnimeId, anime);
-                        Interlocked.Exchange(ref _executionCount, 0);
+                                           _cts.Token)) _loadedAnime.TryAdd(anime.AnimeId, anime);
+                        // Interlocked.Exchange(ref _executionCount, 0);
                     }
 
                     var (key, nearestAnime) = _loadedAnime.MinBy(x => x.Value.DateTime);
@@ -82,10 +82,10 @@ public class TimedHostedService : IHostedService
                     var dateTimeNowUtc = DateTime.UtcNow;
                     if (airingDateUtc.Day >= dateTimeNowUtc.Day)
                     {
-                        using var scope = Services.CreateScope();
                         var diff = airingDateUtc.Day - dateTimeNowUtc.Day;
                         if (diff > 0)
                             await Task.Delay(TimeSpan.FromDays(diff), _cts.Token);
+                        using var scope = Services.CreateScope();
                         var channelApi = scope.ServiceProvider
                             .GetRequiredService<IDiscordRestChannelAPI>();
                         var dbContextService = scope.ServiceProvider.GetRequiredService<IDbContextService>();
@@ -115,7 +115,6 @@ public class TimedHostedService : IHostedService
                 {
                     _logger.LogError($"Error in Timed Hosted Service (Worker): {e.Message} ");
                 }
-            }
         }
         catch (OperationCanceledException)
         {

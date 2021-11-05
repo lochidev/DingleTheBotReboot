@@ -33,9 +33,8 @@ public class Startup
         services.AddCommandGroup<AnimeCommands>();
         services.AddResponder<ButtonResponder>();
         services.AddDbContext<DingleDbContext>(options =>
-            options.UseNpgsql(
-                _config["Postgres"] ??
-                throw new InvalidOperationException()));
+            options.UseNpgsql(_config["Postgres"] ??
+                              throw new InvalidOperationException()));
         services.AddTransient<IDbContextService, DbContextService>();
         services.AddSingleton<ICommonMethodsService, CommonMethodsService>();
         services.AddGrpcClient<Banner.BannerClient>(o =>
