@@ -11,17 +11,9 @@ public class Program
 {
     public static void Main()
     {
-        try
-        {
-            var host = CreateHostBuilder().Build();
-            CreateDbIfNotExists(host);
-            host.Run();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        var host = CreateHostBuilder().Build();
+        CreateDbIfNotExists(host);
+        host.Run();
     }
 
     private static void CreateDbIfNotExists(IHost host)
