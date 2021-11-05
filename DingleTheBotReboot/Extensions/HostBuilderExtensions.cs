@@ -32,25 +32,22 @@ public static class HostBuilderExtensions
             Console.WriteLine(e.Message);
         }
 #endif
+#if RELEASE
+        // Create a new secret client using the default credential from Azure.Identity using environment
+        // variables previously set, including AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, and AZURE_TENANT_ID.
+        var keyVaultName = Environment.GetEnvironmentVariable("KeyVaultName");
+        if (!string.IsNullOrEmpty(keyVaultName))
+        {
+            var client = new SecretClient(new Uri($"https://{keyVaultName}.vault.azure.net/"),
+                new DefaultAzureCredential());
+            configBuilder.AddAzureKeyVault(client, new KeyVaultSecretManager());
+        }
+#endif
         var config = configBuilder.Build();
         builder.ConfigureAppConfiguration((context, appConfig) =>
         {
             appConfig.Sources.Clear();
             appConfig.AddConfiguration(config);
-            if (!context.HostingEnvironment.IsProduction()) return;
-            try
-            {
-                // Create a new secret client using the default credential from Azure.Identity using environment
-                // variables previously set, including AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, and AZURE_TENANT_ID.
-                var client = new SecretClient(new Uri($"https://{config["KeyVaultName"]}.vault.azure.net/"),
-                    new DefaultAzureCredential());
-                appConfig.AddAzureKeyVault(client, new KeyVaultSecretManager());
-                config = appConfig.Build();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
         });
         var botToken = config["DBOTTOKEN"];
         if (botToken is null) throw new Exception("Bot token not found");
