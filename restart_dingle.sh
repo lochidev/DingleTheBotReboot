@@ -3,9 +3,9 @@ mkdir -p mystuff/dinglerebooted/publish
 cd mystuff/dinglerebooted/publish
 BOT_PROCESS=$(bash $HOME/get_process.sh [.]/DingleTheBotReboot)
 kill -9 $BOT_PROCESS
-printf "Killed bot with pId $BOT_PROCESS\n If you do not want to use azure keyvault, press 1, else any key"
+printf "Killed bot with pId $BOT_PROCESS\nIf you do not want to use azure keyvault, press 1, else any key\n"
 read KEY
-if [ $KEY = "1" ]
+if [ $KEY == "1" ]
 then
 	printf "Enter bot token\n"
 	read BOT_TOKEN
