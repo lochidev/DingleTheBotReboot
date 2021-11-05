@@ -21,10 +21,7 @@ public class TimedHostedService : IHostedService
 {
     private readonly CancellationTokenSource _cts = new();
     private readonly Dictionary<int, Anime> _loadedAnime;
-
     private readonly ILogger<TimedHostedService> _logger;
-
-    // private int _executionCount;
     private Task _timerTask;
 
     public TimedHostedService(IServiceProvider services, ILogger<TimedHostedService> logger)
@@ -60,26 +57,26 @@ public class TimedHostedService : IHostedService
     {
         try
         {
-            var timer = new PeriodicTimer(TimeSpan.FromMinutes(5));
+            var nextRefreshDate = DateTime.UtcNow.AddDays(2);
+            var timer = new PeriodicTimer(TimeSpan.FromMinutes(10));
             while (await timer.WaitForNextTickAsync(_cts.Token))
                 try
                 {
-                    // _executionCount += 1;
-                    if (_loadedAnime.Count == 0)
+                    var dateTimeNowUtc = DateTime.UtcNow;
+                    if (_loadedAnime.Count == 0 || dateTimeNowUtc > nextRefreshDate)
                     {
+                        nextRefreshDate = dateTimeNowUtc.AddDays(2);
                         using var scope = Services.CreateScope();
                         var animeDbServiceClient = scope.ServiceProvider
                             .GetRequiredService<AnimeDbService.AnimeDbServiceClient>();
                         using var streamingCall = animeDbServiceClient.GetUpComingAnime(new Empty());
                         await foreach (var anime in streamingCall.ResponseStream.ReadAllAsync(
                                            _cts.Token)) _loadedAnime.TryAdd(anime.AnimeId, anime);
-                        // Interlocked.Exchange(ref _executionCount, 0);
                     }
 
                     var (key, nearestAnime) = _loadedAnime.MinBy(x => x.Value.DateTime);
                     if (nearestAnime == null) continue;
                     var airingDateUtc = nearestAnime.DateTime.ToDateTime().ToUniversalTime();
-                    var dateTimeNowUtc = DateTime.UtcNow;
                     if (airingDateUtc.Day >= dateTimeNowUtc.Day)
                     {
                         var diff = airingDateUtc.Day - dateTimeNowUtc.Day;
