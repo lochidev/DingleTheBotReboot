@@ -45,6 +45,7 @@ public static class HostBuilderExtensions
                 var client = new SecretClient(new Uri($"https://{config["KeyVaultName"]}.vault.azure.net/"),
                     new DefaultAzureCredential());
                 appConfig.AddAzureKeyVault(client, new KeyVaultSecretManager());
+                config = appConfig.Build();
             }
             catch (Exception e)
             {
