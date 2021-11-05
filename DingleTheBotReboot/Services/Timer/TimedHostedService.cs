@@ -72,7 +72,7 @@ public class TimedHostedService : IHostedService
                             .GetRequiredService<AnimeDbService.AnimeDbServiceClient>();
                         using var streamingCall = animeDbServiceClient.GetUpComingAnime(new Empty());
                         await foreach (var anime in streamingCall.ResponseStream.ReadAllAsync(
-                            _cts.Token)) _loadedAnime.TryAdd(anime.AnimeId, anime);
+                                           _cts.Token)) _loadedAnime.TryAdd(anime.AnimeId, anime);
                         // Interlocked.Exchange(ref _executionCount, 0);
                     }
 

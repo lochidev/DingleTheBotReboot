@@ -78,12 +78,9 @@ public class AnimeCommands : CommandGroup
         var guildId = _context.GuildID;
         var channelId = _context.ChannelID;
         if (!guildId.HasValue) return Result.FromSuccess();
-        var loadedAnime = new HashSet<Anime>();
+        List<Embed> embeds = new();
         using var streamingCall = _animeDbServiceClient.GetUpComingAnime(new Empty());
         await foreach (var anime in streamingCall.ResponseStream.ReadAllAsync())
-            loadedAnime.Add(anime);
-        List<Embed> embeds = new();
-        foreach (var anime in loadedAnime)
         {
             var embed = new Embed(
                 $"Airs on {anime.DateTime.ToDateTime().ToString("D", DateTimeFormatInfo.InvariantInfo)}",
@@ -104,8 +101,6 @@ public class AnimeCommands : CommandGroup
                 _interactionContext.ApplicationID,
                 _interactionContext.Token,
                 embeds: embeds);
-
-
         return Result.FromSuccess();
     }
 }
