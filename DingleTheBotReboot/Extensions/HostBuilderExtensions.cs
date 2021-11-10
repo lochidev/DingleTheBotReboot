@@ -1,4 +1,7 @@
 ﻿using System;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using DingleTheBotReboot.Helpers;
 using DingleTheBotReboot.Services.Core;
 using Microsoft.Extensions.Configuration;

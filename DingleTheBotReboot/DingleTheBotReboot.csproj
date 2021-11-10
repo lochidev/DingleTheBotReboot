@@ -7,20 +7,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.1"/>
-        <PackageReference Include="Azure.Identity" Version="1.5.0"/>
-        <PackageReference Include="Google.Protobuf" Version="3.19.1"/>
-        <PackageReference Include="Grpc.Net.ClientFactory" Version="2.40.0"/>
-        <PackageReference Include="Grpc.Tools" Version="2.41.1">
+        <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.1" />
+        <PackageReference Include="Azure.Identity" Version="1.5.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.19.1" />
+        <PackageReference Include="Grpc.Net.ClientFactory" Version="2.40.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.42.0-pre1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.0-rc.2.21480.10"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-rc.2.21480.5"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0-rc.2.21480.5"/>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-rc.2"/>
-        <PackageReference Include="Remora.Discord" Version="3.0.76"/>
-        <PackageReference Include="Remora.Discord.Caching" Version="15.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-rc.2" />
+        <PackageReference Include="Remora.Discord" Version="3.0.79" />
+        <PackageReference Include="Remora.Discord.Caching" Version="15.0.2" />
     </ItemGroup>
 
     <ItemGroup>

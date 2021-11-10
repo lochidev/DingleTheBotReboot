@@ -57,7 +57,7 @@ public class TimedHostedService : IHostedService
     {
         try
         {
-            var nextRefreshDate = DateTime.UtcNow.AddDays(2);
+            var nextRefreshDate = DateTime.UtcNow.AddDays(4);
             var timer = new PeriodicTimer(TimeSpan.FromMinutes(10));
             while (await timer.WaitForNextTickAsync(_cts.Token))
                 try
@@ -65,7 +65,7 @@ public class TimedHostedService : IHostedService
                     var dateTimeNowUtc = DateTime.UtcNow;
                     if (_loadedAnime.Count == 0 || dateTimeNowUtc > nextRefreshDate)
                     {
-                        nextRefreshDate = dateTimeNowUtc.AddDays(2);
+                        nextRefreshDate = dateTimeNowUtc.AddDays(4);
                         using var scope = Services.CreateScope();
                         var animeDbServiceClient = scope.ServiceProvider
                             .GetRequiredService<AnimeDbService.AnimeDbServiceClient>();
@@ -77,11 +77,10 @@ public class TimedHostedService : IHostedService
                     var (key, nearestAnime) = _loadedAnime.MinBy(x => x.Value.DateTime);
                     if (nearestAnime == null) continue;
                     var airingDateUtc = nearestAnime.DateTime.ToDateTime().ToUniversalTime();
-                    if (airingDateUtc.Day >= dateTimeNowUtc.Day)
+                    if (airingDateUtc >= dateTimeNowUtc)
                     {
-                        var diff = airingDateUtc.Day - dateTimeNowUtc.Day;
-                        if (diff > 0)
-                            await Task.Delay(TimeSpan.FromDays(diff), _cts.Token);
+                        if(airingDateUtc != dateTimeNowUtc)
+                            await Task.Delay(airingDateUtc - dateTimeNowUtc, _cts.Token);
                         using var scope = Services.CreateScope();
                         var channelApi = scope.ServiceProvider
                             .GetRequiredService<IDiscordRestChannelAPI>();
