@@ -77,11 +77,10 @@ public class TimedHostedService : IHostedService
                     var (key, nearestAnime) = _loadedAnime.MinBy(x => x.Value.DateTime);
                     if (nearestAnime == null) continue;
                     var airingDateUtc = nearestAnime.DateTime.ToDateTime().ToUniversalTime();
-                    if (airingDateUtc.Day >= dateTimeNowUtc.Day)
+                    if (airingDateUtc >= dateTimeNowUtc)
                     {
-                        var diff = airingDateUtc.Day - dateTimeNowUtc.Day;
-                        if (diff > 0)
-                            await Task.Delay(TimeSpan.FromDays(diff), _cts.Token);
+                        if(airingDateUtc != dateTimeNowUtc)
+                            await Task.Delay(airingDateUtc - dateTimeNowUtc, _cts.Token);
                         using var scope = Services.CreateScope();
                         var channelApi = scope.ServiceProvider
                             .GetRequiredService<IDiscordRestChannelAPI>();
